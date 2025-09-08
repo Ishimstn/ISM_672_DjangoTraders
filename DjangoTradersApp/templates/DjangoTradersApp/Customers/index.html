@@ -1,0 +1,119 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container shadow-sm">
+
+	<!-- Search Form -->
+	<form method="GET" class="d-flex">
+		<div class="navbar">
+
+			<!-- Search Inputs -->
+			<div class="nav">
+
+				<!-- Search By Customer-->
+				<div class="nav-item me-1">
+					<input type="text"
+							   name="customer"
+							   class="form-control me-2"
+							   placeholder="Search by customer..."
+							   value="{{ search_customer }}">
+				</div>
+				
+				<!-- Search By Contact-->
+				<div class="nav-item-sm me-1">
+					<input type="text"
+						   name="contact"
+						   class="form-control me-2"
+						   placeholder="Search by contact..."
+						   value="{{ search_contact }}">
+				</div>
+				
+				<!-- Search By City-->
+				<div class="nav-item me-1">
+					<input type="text"
+						   name="city"
+						   class="form-control me-2"
+						   placeholder="Search by city..."
+						   value="{{ search_city }}">
+				</div>
+
+				<!-- Search By Country-->
+				<div class="nav-item me-1">
+					<select name="country" class="form-select me-2">
+						<option value="">Select country...</option>
+						{% for country in available_countries %}
+							{% if country %}
+								<option value="{{ country }}" {% if country == search_country %}selected{% endif %}>
+									{{ country }}
+								</option>
+							{% endif %}
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+			
+			<!-- Search and Clear Buttons-->
+			<div class="nav ms-2">
+				<button type="submit" class="btn btn-light ">
+					<i class="fa fa-search"></i>
+				</button>
+				<a href="{% url 'DjTraders.Customers' %}"
+					class="btn btn-light ms-2">
+					<i class="fa fa-times"></i>
+				
+				</a>
+			</div>
+
+		</div>
+	</form>
+
+
+	{% if customers %}
+	
+	<table class="table table-hover"
+		   id="CustomersTable" width="100%">
+		<thead>
+			<tr class="">
+				<th class="my-2 text-center" style=""> Customer </th>
+				<th class="ps-1" style=""> Contact</th>
+				<th class="text-center" style="">Address</th>
+				<th class="" style="">City</th>
+				<th class="px-2" style="">Country</th>
+				<th> Details</th>
+			</tr>
+		</thead>
+
+		<tbody class="small">
+
+			{% for customer in customers %}
+			<tr >
+				<td class="p-2">{{customer.company_name}}</td>
+				<td class="p-2">{{customer.contact_name}}</td>
+				<td class="p-2">{{customer.address}}</td>
+				<td class="p-2">{{customer.city}}</td>
+				<td class="p-2">{{customer.country}}</td>
+
+				<td title="Click to see details" class="text-center">
+					<a 	href = {% url 'DjTraders.CustomerDetail' customer_id=customer.customer_id %} class="">
+						<i class="fa-solid fa-house-user fa-lg pt-2" style="color: steelblue;"></i>
+					</a>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	<table>	
+	{% else %}
+		<div class="alert alert-warning">
+			{% if search_country %}
+				No customers found for country "{{ search_country }}". 
+				<a href="{% url 'DjTraders.Customers' %}">Show all customers</a>
+			{% else %}
+				No Customers Found
+			{% endif %}
+		</div>
+	{% endif %}
+</div>
+
+{% endblock%}

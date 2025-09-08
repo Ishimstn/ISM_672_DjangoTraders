@@ -1,0 +1,39 @@
+<!-- tell the page to "use" the base template -->
+{% extends "base.html" %}
+
+<!-- define the block content to be injected -->
+{% block content %}
+
+<div class="container">
+  <div class="navbar mb-4">
+    <h6>Django Traders</h6>
+
+    <div class="text-muted badge badge-secondary small">{{ today }}.</div>
+  </div>
+
+  <div class="my-5 navbar">
+
+    <div class="p-2 rounded-2  border-0 w3-hover-shadow">
+      <a href="{% url 'CustomersList' %}" class="text-decoration-none">
+        View All Customers [Function based View]
+      </a>
+      <br/>
+      <div class="text-success fw-bold">
+        USE THIS FIRST
+      </div>
+    </div>
+
+    <div class="p-2 rounded-2 border-0 w3-hover-shadow">
+      <a href="{% url 'DjTraders.Customers' %}" class="text-decoration-none">
+        All Customers Index [Class based View]
+      </a>
+      <br/>
+      <div class=" text-warning fw-bold">
+        THIS IS NEXT
+      </div>
+    </div>
+
+  </div>
+
+  {% endblock %}
+</div>

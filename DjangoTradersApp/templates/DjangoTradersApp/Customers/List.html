@@ -1,0 +1,24 @@
+{% extends "base.html" %} 
+
+{% block content %}
+	<h2 class="my-2" >All Customers</h2>
+
+	<ol class="list-group  small">
+	{% for customer in customers %}
+		<li class="list-item mt-2">
+        	<a href="{% url 'CustomerDetail' customer.customer_id %}">
+				
+            {{ customer.company_name }} [Contact: {{ customer.contact_name }}]
+        </a>
+			<div class="p3">{{ customer.get_contact_info }}</div>
+
+			<div class="p3">{{ customer.get_full_address }}</div>
+		</li>
+
+	{% empty %}
+		<li>No customers found.</li>
+	{% endfor %}
+
+	</ol>
+	
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="container mt-5">
+
+		<div class="card mx-auto shadow-lg" style="max-width: 600px;">
+		<div class="card-body my-2">
+
+			<h2 class="card-title my-4">Customer: {{ customer.company_name }}</h2>
+
+			<table class="table table-hover">
+				<tbody>
+					<tr>
+						<th scope="row">Name</th>
+						<td>{{ customer.company_name }}</td>
+					</tr>
+					<tr>
+						<th scope="row">Contact</th>
+						<td>{{ customer.get_contact_info }}</td>
+					</tr>
+					<tr>
+						<th scope="row">Address</th>
+						<td>{{ customer.get_full_address }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+			<div class="card-footer bg-white small">
+				<div class="nav">
+					<div class="p-2 rounded-2 btn bg-light w3-hover-shadow">
+						<a href="{% url 'CustomersList' %}"
+								class="btn btn-secondary mt-4">
+								All Customers [Function]
+								</a>
+					</div>
+					<div class="p-2 rounded-2 btn bg-light w3-hover-shadow">
+						<a href="{% url 'DjTraders.Customers' %}"
+								class="btn btn-secondary mt-4 ">
+								Customers Index [Class]
+								</a>
+					</div>
+				</div>
+			</div>
+
+	</div>
+	</div>
+
+{% endblock %}
