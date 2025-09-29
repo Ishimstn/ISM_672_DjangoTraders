@@ -1,0 +1,316 @@
+{% extends "DjangoTradersApp/base.html" %}
+
+{% block title %}Product Search - Django Traders{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h2 class="icon-navy">
+            <i class="fas fa-box"></i> Product Catalog
+        </h2>
+        <p class="text-muted">Search and filter products by name, category, supplier, price, and status</p>
+    </div>
+
+    <!-- Search Form Card -->
+    <div class="card mb-4">
+        <div style="background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%); padding: 15px; border-radius: 10px 10px 0 0;">
+            <h5 class="mb-0" style="color: #0A2240;">
+                <i class="fas fa-search"></i> Search & Filter Products
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" id="productSearchForm">
+                <div class="row g-3">
+                    <!-- Product Name -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-box icon-navy"></i> Product Name
+                        </label>
+                        <input type="text"
+                               name="product_name"
+                               class="form-control"
+                               placeholder="Search product..."
+                               value="{{ search_product_name }}">
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-tags icon-navy"></i> Category
+                        </label>
+                        <select name="category" class="form-select">
+                            <option value="">All Categories</option>
+                            {% for category in available_categories %}
+                                <option value="{{ category.category_name }}" 
+                                        {% if category.category_name == search_category %}selected{% endif %}>
+                                    {{ category.category_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Supplier -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-truck icon-navy"></i> Supplier
+                        </label>
+                        <select name="supplier" class="form-select">
+                            <option value="">All Suppliers</option>
+                            {% for supplier in available_suppliers %}
+                                <option value="{{ supplier.company_name }}" 
+                                        {% if supplier.company_name == search_supplier %}selected{% endif %}>
+                                    {{ supplier.company_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-toggle-on icon-gold"></i> Status
+                        </label>
+                        <select name="status" class="form-select">
+                            <option value="">All Products</option>
+                            <option value="active" {% if search_status == 'active' %}selected{% endif %}>
+                                Active Only
+                            </option>
+                            <option value="discontinued" {% if search_status == 'discontinued' %}selected{% endif %}>
+                                Discontinued Only
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Min Price -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-dollar-sign icon-gold"></i> Min Price
+                        </label>
+                        <input type="number"
+                               name="min_price"
+                               class="form-control"
+                               placeholder="Min"
+                               step="0.01"
+                               value="{{ search_min_price }}">
+                    </div>
+
+                    <!-- Max Price -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-dollar-sign icon-gold"></i> Max Price
+                        </label>
+                        <input type="number"
+                               name="max_price"
+                               class="form-control"
+                               placeholder="Max"
+                               step="0.01"
+                               value="{{ search_max_price }}">
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                        <a href="{% url 'DjTraders.Products' %}" class="btn btn-secondary">
+                            <i class="fa fa-redo"></i> Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="card">
+        <div style="background: linear-gradient(135deg, #0A2240 0%, #1C3A5F 100%); padding: 15px; border-radius: 10px 10px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-white">
+                    <i class="fas fa-list"></i> Product List
+                </h5>
+                <span class="badge bg-warning text-dark">
+                    {{ products|length }} Product{{ products|length|pluralize }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if products %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead style="background: #0A2240; color: white;">
+                            <tr>
+                                <!-- Sortable Product Name -->
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=product_name&order={% if current_sort == 'product_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Product Name
+                                        {% if current_sort == 'product_name' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+
+                                <!-- Sortable Category -->
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=category__category_name&order={% if current_sort == 'category__category_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Category
+                                        {% if current_sort == 'category__category_name' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+
+                                <!-- Sortable Price -->
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=unit_price&order={% if current_sort == 'unit_price' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Price
+                                        {% if current_sort == 'unit_price' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+
+                                <!-- Sortable Status -->
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=discontinued&order={% if current_sort == 'discontinued' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Status
+                                        {% if current_sort == 'discontinued' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+
+                                <th>Supplier</th>
+                                <th class="text-center">Stock</th>
+                                <th class="text-center">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr class="{% if product.discontinued %}table-danger{% endif %}">
+                                <td><strong>{{ product.product_name }}</strong></td>
+                                <td>
+                                    {% if product.category %}
+                                        <span class="badge bg-info">
+                                            {{ product.category.category_name }}
+                                        </span>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td><strong>${{ product.unit_price|floatformat:2 }}</strong></td>
+                                <td>
+                                    {% if product.discontinued %}
+                                        <span class="badge bg-danger">Discontinued</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ product.supplier.company_name|default:"—" }}</td>
+                                <td class="text-center">
+                                    {% if product.units_in_stock > 0 %}
+                                        <span class="badge bg-secondary">{{ product.units_in_stock }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Out of Stock</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'DjTraders.ProductDetail' product_id=product.product_id %}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fa fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info m-3">
+                    <i class="fas fa-info-circle"></i> 
+                    {% if search_product_name or search_category or search_supplier %}
+                        No products found matching your search criteria.
+                        <a href="{% url 'DjTraders.Products' %}">Clear filters</a>
+                    {% else %}
+                        No products found.
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Back to Home -->
+    <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Product search JavaScript loaded');
+    
+    const form = document.getElementById('productSearchForm');
+    const textInputs = form.querySelectorAll('input[type="text"], input[type="number"]');
+    const selectInputs = form.querySelectorAll('select');
+    
+    let typingTimer;
+    const doneTypingInterval = 500; // Wait 500ms after user stops typing
+    
+    // Auto-submit on text/number input changes
+    textInputs.forEach(function(input) {
+        input.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            console.log('Input detected:', input.name, '=', input.value);
+            typingTimer = setTimeout(function() {
+                console.log('Submitting form...');
+                form.submit();
+            }, doneTypingInterval);
+        });
+    });
+    
+    // Auto-submit immediately on dropdown changes
+    selectInputs.forEach(function(select) {
+        select.addEventListener('change', function() {
+            console.log('Select changed:', select.name, '=', select.value);
+            form.submit();
+        });
+    });
+});
+</script>
+
+<style>
+    .table thead th a {
+        color: black !important;
+        text-decoration: none;
+    }
+    
+    .table thead th a:hover {
+        color: #FFD700 !important;
+    }
+    
+    .table-danger {
+        background-color: rgba(239, 68, 68, 0.1) !important;
+    }
+    
+    .table-danger:hover {
+        background-color: rgba(239, 68, 68, 0.15) !important;
+    }
+</style>
+{% endblock %}

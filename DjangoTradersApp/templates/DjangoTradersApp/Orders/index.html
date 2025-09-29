@@ -1,0 +1,293 @@
+{% extends "DjangoTradersApp/base.html" %}
+
+{% block title %}All Orders - Django Traders{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h2 class="icon-navy">
+            <i class="fas fa-receipt"></i> Order Management
+        </h2>
+        <p class="text-muted">View and manage all orders with filtering options</p>
+    </div>
+
+    <!-- Search/Filter Card -->
+    <div class="card mb-4">
+        <div style="background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%); padding: 15px; border-radius: 10px 10px 0 0;">
+            <h5 class="mb-0" style="color: #0A2240;">
+                <i class="fas fa-filter"></i> Filter Orders
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" id="orderFilterForm">
+                <div class="row g-3">
+                    <!-- Customer Search -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-building icon-navy"></i> Customer
+                        </label>
+                        <input type="text"
+                               name="customer"
+                               class="form-control"
+                               placeholder="Search by customer..."
+                               value="{{ search_customer }}">
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-toggle-on icon-navy"></i> Status
+                        </label>
+                        <select name="status" class="form-select">
+                            <option value="">All Orders</option>
+                            <option value="shipped" {% if search_status == 'shipped' %}selected{% endif %}>
+                                Shipped
+                            </option>
+                            <option value="processing" {% if search_status == 'processing' %}selected{% endif %}>
+                                Processing
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-calendar icon-navy"></i> Order Year
+                        </label>
+                        <select name="year" class="form-select">
+                            <option value="">All Years</option>
+                            {% for year in available_years %}
+                                <option value="{{ year }}" {% if year|stringformat:"s" == search_year %}selected{% endif %}>
+                                    {{ year }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fa fa-search"></i> Filter
+                        </button>
+                        <a href="{% url 'DjTraders.Orders' %}" class="btn btn-secondary">
+                            <i class="fa fa-redo"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Orders List Card -->
+    <div class="card">
+        <div style="background: linear-gradient(135deg, #0A2240 0%, #1C3A5F 100%); padding: 15px; border-radius: 10px 10px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-white">
+                    <i class="fas fa-list"></i> All Orders
+                </h5>
+                <span class="badge bg-warning text-dark">
+                    {{ orders|length }} Order{{ orders|length|pluralize }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead style="background: #0A2240; color: white;">
+                            <tr>
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=order_id&order={% if current_sort == 'order_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Order ID
+                                        {% if current_sort == 'order_id' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=customer__company_name&order={% if current_sort == 'customer__company_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Customer
+                                        {% if current_sort == 'customer__company_name' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=order_date&order={% if current_sort == 'order_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Order Date
+                                        {% if current_sort == 'order_date' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                <th>Required Date</th>
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=shipped_date&order={% if current_sort == 'shipped_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Shipped Date
+                                        {% if current_sort == 'shipped_date' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                <th>Ship To</th>
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=freight&order={% if current_sort == 'freight' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Freight
+                                        {% if current_sort == 'freight' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                <th>Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>
+                                    <strong style="color: #0A2240;">#{{ order.order_id }}</strong>
+                                </td>
+                                <td>
+                                    <a href="{% url 'DjTraders.CustomerDetail' customer_id=order.customer.customer_id %}" 
+                                       class="text-decoration-none">
+                                        {{ order.customer.company_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if order.order_date %}
+                                        {{ order.order_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.required_date %}
+                                        {{ order.required_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.shipped_date %}
+                                        {{ order.shipped_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock"></i> Pending
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.ship_city and order.ship_country %}
+                                        <i class="fas fa-map-marker-alt icon-gold"></i>
+                                        {{ order.ship_city }}, {{ order.ship_country }}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.freight %}
+                                        ${{ order.freight|floatformat:2 }}
+                                    {% else %}
+                                        <span class="text-muted">$0.00</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.shipped_date %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle"></i> Shipped
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-cog"></i> Processing
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'DjTraders.OrderDetail' order_id=order.order_id %}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info m-3">
+                    <i class="fas fa-info-circle"></i> 
+                    {% if search_customer or search_status or search_year %}
+                        No orders found matching your search criteria.
+                        <a href="{% url 'DjTraders.Orders' %}">Clear filters</a>
+                    {% else %}
+                        No orders found in the system.
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Back to Home -->
+    <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('orderFilterForm');
+    const textInputs = form.querySelectorAll('input[type="text"]');
+    const selectInputs = form.querySelectorAll('select');
+    
+    let typingTimer;
+    const doneTypingInterval = 500;
+    
+    textInputs.forEach(function(input) {
+        input.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(function() {
+                form.submit();
+            }, doneTypingInterval);
+        });
+    });
+    
+    selectInputs.forEach(function(select) {
+        select.addEventListener('change', function() {
+            form.submit();
+        });
+    });
+});
+</script>
+
+<style>
+    .table thead th a {
+        color: white !important;
+        text-decoration: none;
+    }
+    
+    .table thead th a:hover {
+        color: #FFD700 !important;
+    }
+</style>
+{% endblock %}

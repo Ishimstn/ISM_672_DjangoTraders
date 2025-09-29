@@ -34,7 +34,37 @@ urlpatterns = [
 		route="customers/<str:customer_id>/",
 		view=views.CustomerDetail,
 		name="CustomerDetail"
-	)
+	),
+    
+	# Added in ListView for Product URL
+
+	path(
+        "DjTraders/Products/", 
+        views.ProductListView.as_view(), 
+        name="DjTraders.Products"
+	),
+    
+	# Added in DetailView for Product URL
+
+	path(
+        "DjTraders/ProductDetail/<int:product_id>/", 
+      	views.ProductDetailView.as_view(), 
+        name="DjTraders.ProductDetail"
+    ),
+    
+	# Added in Order URL
+    path(
+        "DjTraders/OrderDetail/<int:order_id>/", 
+        views.OrderDetailView.as_view(), 
+        name="DjTraders.OrderDetail"
+	),
+    
+	# Added in Order URL Index
+	path(
+        "DjTraders/Orders/", 
+    	views.OrderListView.as_view(), 
+    	name="DjTraders.Orders"
+	),
 
 	#endregion Class Based View URLs
 ]

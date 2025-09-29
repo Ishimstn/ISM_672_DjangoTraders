@@ -1,49 +1,276 @@
-{% extends "base.html" %}
+{% extends "DjangoTradersApp/base.html" %}
+
+{% block title %}{{ customer.company_name }} - Django Traders{% endblock %}
 
 {% block content %}
-	<div class="container mt-5">
+<div class="container mt-4">
 
-		<div class="card mx-auto shadow-lg" style="max-width: 600px;">
-		<div class="card-body my-2">
+    <!-- Customer Information Card -->
+    <div class="card mx-auto shadow-lg mb-4" style="max-width: 900px;">
+        <div style="background: linear-gradient(135deg, #0A2240 0%, #1C3A5F 100%); padding: 20px; border-radius: 10px 10px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 text-white">
+                    <i class="fas fa-building"></i> {{ customer.company_name }}
+                </h2>
+                <span class="badge" style="background: #D4AF37; color: #0A2240; font-size: 1rem;">
+                    ID: {{ customer.customer_id }}
+                </span>
+            </div>
+        </div>
 
-			<h2 class="card-title my-4">Customer: {{ customer.company_name }}</h2>
+        <div class="card-body p-4">
+            <div class="row">
+                <!-- Contact Information Column -->
+                <div class="col-md-6">
+                    <h5 class="icon-navy mb-3">
+                        <i class="fas fa-user-circle"></i> Contact Information
+                    </h5>
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 40%;">
+                                    <i class="fas fa-user icon-gold"></i> Name
+                                </th>
+                                <td>
+                                    <strong>{{ customer.contact_name|default:"N/A" }}</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <i class="fas fa-id-badge icon-gold"></i> Title
+                                </th>
+                                <td>
+                                    {% if customer.contact_title %}
+                                        <span class="badge" style="background: #D4AF37; color: #0A2240;">
+                                            {{ customer.contact_title }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <i class="fas fa-phone icon-gold"></i> Phone
+                                </th>
+                                <td>{{ customer.phone|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <i class="fas fa-fax icon-gold"></i> Fax
+                                </th>
+                                <td>{{ customer.fax|default:"N/A" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-			<table class="table table-hover">
-				<tbody>
-					<tr>
-						<th scope="row">Name</th>
-						<td>{{ customer.company_name }}</td>
-					</tr>
-					<tr>
-						<th scope="row">Contact</th>
-						<td>{{ customer.get_contact_info }}</td>
-					</tr>
-					<tr>
-						<th scope="row">Address</th>
-						<td>{{ customer.get_full_address }}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+                <!-- Address Column -->
+                <div class="col-md-6">
+                    <h5 class="icon-navy mb-3">
+                        <i class="fas fa-map-marker-alt"></i> Address
+                    </h5>
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 40%;">
+                                    <i class="fas fa-road icon-gold"></i> Street
+                                </th>
+                                <td>{{ customer.address|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <i class="fas fa-city icon-gold"></i> City
+                                </th>
+                                <td>{{ customer.city|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <i class="fas fa-map icon-gold"></i> Region
+                                </th>
+                                <td>{{ customer.region|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <i class="fas fa-mail-bulk icon-gold"></i> Postal Code
+                                </th>
+                                <td>{{ customer.postal_code|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <i class="fas fa-globe icon-gold"></i> Country
+                                </th>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ customer.country|default:"N/A" }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-			<div class="card-footer bg-white small">
-				<div class="nav">
-					<div class="p-2 rounded-2 btn bg-light w3-hover-shadow">
-						<a href="{% url 'CustomersList' %}"
-								class="btn btn-secondary mt-4">
-								All Customers [Function]
-								</a>
-					</div>
-					<div class="p-2 rounded-2 btn bg-light w3-hover-shadow">
-						<a href="{% url 'DjTraders.Customers' %}"
-								class="btn btn-secondary mt-4 ">
-								Customers Index [Class]
-								</a>
-					</div>
-				</div>
-			</div>
+            <!-- Full Address Display -->
+            {% if customer.address or customer.city or customer.country %}
+            <hr class="my-4">
+            <div class="alert alert-light border">
+                <h6 class="icon-navy mb-2">
+                    <i class="fas fa-envelope"></i> Complete Mailing Address
+                </h6>
+                <address class="mb-0">
+                    <strong>{{ customer.company_name }}</strong><br>
+                    {% if customer.contact_name %}{{ customer.contact_name }}<br>{% endif %}
+                    {% if customer.address %}{{ customer.address }}<br>{% endif %}
+                    {% if customer.city %}{{ customer.city }}{% if customer.region %}, {{ customer.region }}{% endif %} {% if customer.postal_code %}{{ customer.postal_code }}{% endif %}<br>{% endif %}
+                    {% if customer.country %}<strong>{{ customer.country }}</strong>{% endif %}
+                </address>
+            </div>
+            {% endif %}
+        </div>
 
-	</div>
-	</div>
+        <!-- Navigation Footer -->
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'DjTraders.Customers' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Customers
+                </a>
+                <div>
+                    <a href="{% url 'CustomersList' %}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-list"></i> All Customers (Function)
+                    </a>
+                    <a href="{% url 'home' %}" class="btn btn-gold">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Section - REQUIREMENT 3 -->
+    <div class="card mx-auto shadow-lg" style="max-width: 1200px;">
+        <div style="background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%); padding: 15px; border-radius: 10px 10px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="mb-0" style="color: #0A2240;">
+                    <i class="fas fa-receipt"></i> Order History
+                </h3>
+                <span class="badge bg-dark fs-6">
+                    {{ orders.count }} Order{{ orders.count|pluralize }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="card-body p-0">
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead style="background: #0A2240; color: white;">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Order Date</th>
+                                <th>Required Date</th>
+                                <th>Shipped Date</th>
+                                <th>Ship To</th>
+                                <th>Freight</th>
+                                <th>Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>
+                                    <strong style="color: #0A2240;">#{{ order.order_id }}</strong>
+                                </td>
+                                <td>
+                                    {% if order.order_date %}
+                                        {{ order.order_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.required_date %}
+                                        {{ order.required_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.shipped_date %}
+                                        {{ order.shipped_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock"></i> Pending
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.ship_city and order.ship_country %}
+                                        <i class="fas fa-map-marker-alt icon-gold"></i>
+                                        {{ order.ship_city }}, {{ order.ship_country }}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.freight %}
+                                        <strong>${{ order.freight|floatformat:2 }}</strong>
+                                    {% else %}
+                                        <span class="text-muted">$0.00</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.shipped_date %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle"></i> Shipped
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-cog"></i> Processing
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'DjTraders.OrderDetail' order.order_id %}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info m-3">
+                    <i class="fas fa-info-circle"></i> 
+                    This customer has not placed any orders yet.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .table-borderless th {
+        color: #0A2240;
+        font-weight: 600;
+    }
+    
+    .table-borderless td {
+        padding-left: 10px;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        cursor: pointer;
+    }
+    
+    address {
+        line-height: 1.8;
+    }
+</style>
 
 {% endblock %}

@@ -1,39 +1,67 @@
-<!-- tell the page to "use" the base template -->
-{% extends "base.html" %}
+{% extends "DjangoTradersApp/base.html" %}
 
-<!-- define the block content to be injected -->
+{% block title %}Welcome - Django Traders{% endblock %}
+
 {% block content %}
-
 <div class="container">
-  <div class="navbar mb-4">
-    <h6>Django Traders</h6>
-
-    <div class="text-muted badge badge-secondary small">{{ today }}.</div>
-  </div>
-
-  <div class="my-5 navbar">
-
-    <div class="p-2 rounded-2  border-0 w3-hover-shadow">
-      <a href="{% url 'CustomersList' %}" class="text-decoration-none">
-        View All Customers [Function based View]
-      </a>
-      <br/>
-      <div class="text-success fw-bold">
-        USE THIS FIRST
-      </div>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1 class="display-3 mb-3">
+            <i class="fas fa-store"></i> Welcome to Django Traders
+        </h1>
+        <p class="lead mb-2">Professional Trading Management Platform</p>
+        <p class="mb-0">Manage customers, products, and orders with ease</p>
     </div>
 
-    <div class="p-2 rounded-2 border-0 w3-hover-shadow">
-      <a href="{% url 'DjTraders.Customers' %}" class="text-decoration-none">
-        All Customers Index [Class based View]
-      </a>
-      <br/>
-      <div class=" text-warning fw-bold">
-        THIS IS NEXT
-      </div>
+    <!-- Three Main Cards -->
+    <div class="row g-4">
+        <!-- Customers Card -->
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body py-5">
+                    <i class="fas fa-users fa-5x icon-navy mb-4"></i>
+                    <h2>Customers</h2>
+                    <p class="text-muted mb-4">
+                        Manage client relationships and view customer orders
+                    </p>
+                    <a href="{% url 'DjTraders.Customers' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-arrow-right"></i> View Customers
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Card -->
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body py-5">
+                    <i class="fas fa-box fa-5x icon-gold mb-4"></i>
+                    <h2>Products</h2>
+                    <p class="text-muted mb-4">
+                        Track inventory, pricing, and product details
+                    </p>
+                    <a href="{% url 'DjTraders.Products' %}" class="btn btn-gold btn-lg">
+                        <i class="fas fa-arrow-right"></i> View Products
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Card -->
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body py-5">
+                    <i class="fas fa-receipt fa-5x icon-navy mb-4"></i>
+                    <h2>Orders</h2>
+                    <p class="text-muted mb-4">
+                        Monitor transactions and shipping status
+                    </p>
+                    <a href="{% url 'DjTraders.Orders' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-arrow-right"></i> View Orders
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-
-  </div>
-
-  {% endblock %}
 </div>
+{% endblock %}

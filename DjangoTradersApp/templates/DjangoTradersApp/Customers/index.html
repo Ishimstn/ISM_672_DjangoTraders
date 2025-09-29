@@ -1,243 +1,314 @@
+{% extends "DjangoTradersApp/base.html" %}
 
-{% extends "base.html" %}
+{% block title %}Customer Search - Django Traders{% endblock %}
 
 {% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h2 class="icon-navy">
+            <i class="fas fa-users"></i> Customer Directory
+        </h2>
+        <p class="text-muted">Search and filter customers by company, contact, location, and more</p>
+    </div>
 
-<div class="container shadow-sm">
+    <!-- Search Form Card -->
+    <div class="card mb-4">
+        <div style="background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%); padding: 15px; border-radius: 10px 10px 0 0;">
+            <h5 class="mb-0" style="color: #0A2240;">
+                <i class="fas fa-search"></i> Search & Filter
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" id="searchForm">
+                <div class="row g-3">
+                    <!-- Company Name -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-building icon-navy"></i> Company Name
+                        </label>
+                        <input type="text"
+                               name="customer"
+                               class="form-control"
+                               placeholder="Search company..."
+                               value="{{ search_customer }}">
+                    </div>
 
-	<!-- Search Form -->
-	<form method="GET" class="d-flex">
-		<div class="navbar">
+                    <!-- Contact Name -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-user icon-navy"></i> Contact Name
+                        </label>
+                        <input type="text"
+                               name="contact"
+                               class="form-control"
+                               placeholder="Search contact..."
+                               value="{{ search_contact }}">
+                    </div>
 
-			<!-- Search Inputs -->
-			<div class="nav">
+                    <!-- Contact Title -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-id-badge icon-navy"></i> Contact Title
+                        </label>
+                        <input type="text"
+                               name="contact_title"
+                               class="form-control"
+                               placeholder="e.g. Owner, Manager..."
+                               value="{{ search_contact_title }}">
+                    </div>
 
-				<!-- Search By Customer-->
-				<div class="nav-item me-1">
-					<input type="text"
-							   name="customer"
-							   class="form-control me-2"
-							   placeholder="Search by customer..."
-							   value="{{ search_customer }}">
-				</div>
-				
-				<!--Added in search form element for title-->
-				
-				<!-- Search By Contact_Title-->
-				<div class="nav-item me-1">
-					<input type="text"
-							   name="contact_title"
-							   class="form-control me-2"
-							   placeholder="Search by contact title..."
-							   value="{{ search_contact_title }}">
-				</div>
+                    <!-- City -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-city icon-gold"></i> City
+                        </label>
+                        <input type="text"
+                               name="city"
+                               class="form-control"
+                               placeholder="Search city..."
+                               value="{{ search_city }}">
+                    </div>
 
-				
-				<!-- Search By Contact-->
-				<div class="nav-item-sm me-1">
-					<input type="text"
-						   name="contact"
-						   class="form-control me-2"
-						   placeholder="Search by contact..."
-						   value="{{ search_contact }}">
-				</div>
-				
-				<!-- Search By City-->
-				<div class="nav-item me-1">
-					<input type="text"
-						   name="city"
-						   class="form-control me-2"
-						   placeholder="Search by city..."
-						   value="{{ search_city }}">
-				</div>
+                    <!-- Region -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-map-marked-alt icon-gold"></i> Region
+                        </label>
+                        <input type="text"
+                               name="region"
+                               class="form-control"
+                               placeholder="Search region..."
+                               value="{{ search_region }}">
+                    </div>
 
-				<!-- Search By Country-->
-				<div class="nav-item me-1">
-					<select name="country" class="form-select me-2">
-						<option value="">Select country...</option>
-						{% for country in available_countries %}
-							{% if country %}
-								<option value="{{ country }}" {% if country == search_country %}selected{% endif %}>
-									{{ country }}
-								</option>
-							{% endif %}
-						{% endfor %}
-					</select>
-				</div>
+                    <!-- Country -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-globe icon-gold"></i> Country
+                        </label>
+                        <select name="country" class="form-select">
+                            <option value="">All Countries</option>
+                            {% for country in available_countries %}
+                                {% if country %}
+                                    <option value="{{ country }}" {% if country == search_country %}selected{% endif %}>
+                                        {{ country }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
 
-				<!-- Search by Region-->
-				<div class="nav-item me-1">
-					<input type="text"
-						   name="region"
-						   class="form-control me-2"
-						   placeholder="Search by region..."
-						   value="{{ search_region }}">
-				</div>
-			</div>
-			
-			<!-- Search and Clear Buttons-->
-			<div class="nav ms-2">
-				<button type="submit" class="btn btn-light ">
-					<i class="fa fa-search"></i>
-				</button>
-				<a href="{% url 'DjTraders.Customers' %}"
-					class="btn btn-light ms-2">
-					<i class="fa fa-times"></i>
-				
-				</a>
-			</div>
+                    <!-- Buttons -->
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                        <a href="{% url 'DjTraders.Customers' %}" class="btn btn-secondary">
+                            <i class="fa fa-redo"></i> Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
-		</div>
-	</form>
+    <!-- Results Card -->
+    <div class="card">
+        <div style="background: linear-gradient(135deg, #0A2240 0%, #1C3A5F 100%); padding: 15px; border-radius: 10px 10px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-white">
+                    <i class="fas fa-list"></i> Customer List
+                </h5>
+                <span class="badge bg-warning text-dark">
+                    {{ customers|length }} Result{{ customers|length|pluralize }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if customers %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead style="background: #0A2240; color: white;">
+                            <tr>
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=company_name&order={% if current_sort == 'company_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Customer 
+                                        {% if current_sort == 'company_name' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=contact_name&order={% if current_sort == 'contact_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Contact 
+                                        {% if current_sort == 'contact_name' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=contact_title&order={% if current_sort == 'contact_title' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Title 
+                                        {% if current_sort == 'contact_title' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=city&order={% if current_sort == 'city' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        City 
+                                        {% if current_sort == 'city' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=region&order={% if current_sort == 'region' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Region 
+                                        {% if current_sort == 'region' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                
+                                <th>
+                                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=country&order={% if current_sort == 'country' and current_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                       class="text-white text-decoration-none">
+                                        Country 
+                                        {% if current_sort == 'country' %}
+                                            <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                
+                                <th class="text-center">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in customers %}
+                            <tr>
+                                <td><strong>{{ customer.company_name }}</strong></td>
+                                <td>{{ customer.contact_name|default:"—" }}</td>
+                                <td>
+                                    {% if customer.contact_title %}
+                                        <span class="badge" style="background: #D4AF37; color: #0A2240;">
+                                            {{ customer.contact_title }}
+                                        </span>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>{{ customer.city|default:"—" }}</td>
+                                <td>{{ customer.region|default:"—" }}</td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ customer.country|default:"—" }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'DjTraders.CustomerDetail' customer_id=customer.customer_id %}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fa fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info m-3">
+                    <i class="fas fa-info-circle"></i> 
+                    {% if search_country or search_customer or search_contact %}
+                        No customers found matching your search criteria. 
+                        <a href="{% url 'DjTraders.Customers' %}">Clear filters</a>
+                    {% else %}
+                        No customers found.
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 
-
-	{% if customers %}
-
-		<table class="table table-hover"
-		   id="CustomersTable" width="100%">
-		<thead>
-			<!--Added in Sortable Headers-->
-			<tr class="">
-			
-				<th class="my-2 text-center">
-					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=company_name&order={% if current_sort == 'company_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
-						Customer 
-						{% if current_sort == 'company_name' %}
-							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-						{% else %}
-							<i class="fa fa-sort"></i>
-						{% endif %}
-					</a>
-				</th>
-				
-			
-				<th class="ps-1">
-					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=contact_name&order={% if current_sort == 'contact_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
-						Contact 
-						{% if current_sort == 'contact_name' %}
-							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-						{% else %}
-							<i class="fa fa-sort"></i>
-						{% endif %}
-					</a>
-				</th>
-				
-				
-				<th>
-					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=contact_title&order={% if current_sort == 'contact_title' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
-						Title 
-						{% if current_sort == 'contact_title' %}
-							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-						{% else %}
-							<i class="fa fa-sort"></i>
-						{% endif %}
-					</a>
-				</th>
-				
-				<th class="text-center">Address</th>
-				
-				
-				<th>
-					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=city&order={% if current_sort == 'city' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
-						City 
-						{% if current_sort == 'city' %}
-							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-						{% else %}
-							<i class="fa fa-sort"></i>
-						{% endif %}
-					</a>
-				</th>
-				
-				
-				<th>
-					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=region&order={% if current_sort == 'region' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
-						Region 
-						{% if current_sort == 'region' %}
-							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-						{% else %}
-							<i class="fa fa-sort"></i>
-						{% endif %}
-					</a>
-				</th>
-				
-				
-				<th class="px-2">
-					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=country&order={% if current_sort == 'country' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
-						Country 
-						{% if current_sort == 'country' %}
-							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-						{% else %}
-							<i class="fa fa-sort"></i>
-						{% endif %}
-					</a>
-				</th>
-				
-				<th>Details</th>
-			</tr>
-		</thead>
-
-		<tbody class="small">
-
-			{% for customer in customers %}
-			<tr >
-				<td class="p-2">{{customer.company_name}}</td>
-				<td class="p-2">{{customer.contact_name}}</td>
-				<!--Added in column to show title in the table-->
-				<td class="p-2">{{customer.contact_title}}</td>
-				<td class="p-2">{{customer.address}}</td>
-				<td class="p-2">{{customer.city}}</td>
-				<!--Added in region-->
-				<td class="p-2">{{customer.region}}</td>
-				<td class="p-2">{{customer.country}}</td>
-
-				<td title="Click to see details" class="text-center">
-					<a 	href = {% url 'DjTraders.CustomerDetail' customer_id=customer.customer_id %} class="">
-						<i class="fa-solid fa-house-user fa-lg pt-2" style="color: steelblue;"></i>
-					</a>
-				</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>	
-	{% else %}
-		<div class="alert alert-warning">
-			{% if search_country %}
-				No customers found for country "{{ search_country }}". 
-				<a href="{% url 'DjTraders.Customers' %}">Show all customers</a>
-			{% else %}
-				No Customers Found
-			{% endif %}
-		</div>
-	{% endif %}
+    <!-- Back to Home -->
+    <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+    </div>
 </div>
+{% endblock %}
 
-<!--Initialize DataTables CDN through Index.html-->
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('#CustomersTable').DataTable({  
-    	order:[0,'asc'],
-    	responsive:true,
-    	paging:true,
-    	searching:false,
-    	ordering: false,  
-	});
-
-
-	// Auto-submit when user types in text inputs
-    $('input[type="text"]').on('input', function() {
-        // Add small delay to prevent too many requests
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(function() {
-            $('form').submit();
-        }, 500); // Wait 500ms after user stops typing
+{% block extra_js %}
+<script>
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Customer search JavaScript loaded');
+    
+    const form = document.getElementById('searchForm');
+    const textInputs = form.querySelectorAll('input[type="text"]');
+    const selectInputs = form.querySelectorAll('select');
+    
+    let typingTimer;
+    const doneTypingInterval = 500; // Wait 500ms after user stops typing
+    
+    // Auto-submit on text input changes
+    textInputs.forEach(function(input) {
+        input.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            console.log('Input detected:', input.name, '=', input.value);
+            typingTimer = setTimeout(function() {
+                console.log('Submitting form...');
+                form.submit();
+            }, doneTypingInterval);
+        });
     });
     
-    // Auto-submit immediately when dropdown changes
-    $('select').on('change', function() {
-        $('form').submit();
+    // Auto-submit immediately on dropdown changes
+    selectInputs.forEach(function(select) {
+        select.addEventListener('change', function() {
+            console.log('Select changed:', select.name, '=', select.value);
+            form.submit();
+        });
     });
-
 });
-	</script>
-	
-{% endblock%}
+</script>
+
+<style>
+    /* Ensure sort links are visible */
+    .table thead th a {
+        color: black !important;
+        text-decoration: none;
+    }
+    
+    .table thead th a:hover {
+        color: #FFD700 !important;
+    }
+    
+    .table thead th a i {
+        margin-left: 5px;
+    }
+</style>
+{% endblock %}
