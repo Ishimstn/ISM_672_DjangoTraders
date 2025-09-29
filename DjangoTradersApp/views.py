@@ -95,7 +95,31 @@ class CustomerListView(ListView):
         if country_search:
             queryset = queryset.filter(country__exact=country_search)
 
+        ## Added a contact title set
+        contact_title_search = self.request.GET.get("contact_title")
+        if contact_title_search:
+            queryset = queryset.filter(contact_title__icontains=contact_title_search)
+        
+        ## Added a region set
+        region_search = self.request.GET.get("region")
+        if region_search:
+            queryset = queryset.filter(region__exact=region_search)
+
+        ## Sorting Functionality
+        sort_by = self.request.GET.get("sort", "company_name")  # Default sort by company
+        sort_order = self.request.GET.get("order", "asc")       # Default ascending
+
+        # List of valid fields that can be sorted
+        valid_sort_fields = ['company_name', 'contact_name', 'contact_title', 'city', 'region', 'country']
+
+        if sort_by in valid_sort_fields:
+            if sort_order == "desc":
+                sort_by = f"-{sort_by}"  
+            queryset = queryset.order_by(sort_by)  
+
         return queryset
+    
+        
 
     def get_context_data(self, **kwargs):
         """
@@ -108,9 +132,22 @@ class CustomerListView(ListView):
         context["search_city"] = self.request.GET.get("city", "")
         context["search_contact"] = self.request.GET.get("contact", "")
         context["search_customer"] = self.request.GET.get("customer", "")
+        # Adding context to contact_title for Template
+        context["search_contact_title"] = self.request.GET.get("contact_title", "")
+        # Adding context to region for Template
+        context["search_region"] = self.request.GET.get("region", "")
+        # Sorting Functionality for Template
+        context["current_sort"] = self.request.GET.get("sort", "company_name")
+        context["current_order"] = self.request.GET.get("order", "asc")
 
         # Get distinct countries for dropdown
         context["available_countries"] = Customers.get_countries()
+
+        # Query string for sorting links
+        get_params = self.request.GET.copy()
+        if 'page' in get_params:
+            del get_params['page']
+        context["query_string"] = get_params.urlencode()
 
         return context
 

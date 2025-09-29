@@ -21,6 +21,18 @@
 							   value="{{ search_customer }}">
 				</div>
 				
+				<!--Added in search form element for title-->
+				
+				<!-- Search By Contact_Title-->
+				<div class="nav-item me-1">
+					<input type="text"
+							   name="contact_title"
+							   class="form-control me-2"
+							   placeholder="Search by contact title..."
+							   value="{{ search_contact_title }}">
+				</div>
+
+				
 				<!-- Search By Contact-->
 				<div class="nav-item-sm me-1">
 					<input type="text"
@@ -52,6 +64,15 @@
 						{% endfor %}
 					</select>
 				</div>
+
+				<!-- Search by Region-->
+				<div class="nav-item me-1">
+					<input type="text"
+						   name="region"
+						   class="form-control me-2"
+						   placeholder="Search by region..."
+						   value="{{ search_region }}">
+				</div>
 			</div>
 			
 			<!-- Search and Clear Buttons-->
@@ -71,17 +92,87 @@
 
 
 	{% if customers %}
-	
-	<table class="table table-hover"
+
+		<table class="table table-hover"
 		   id="CustomersTable" width="100%">
 		<thead>
+			<!--Added in Sortable Headers-->
 			<tr class="">
-				<th class="my-2 text-center" style=""> Customer </th>
-				<th class="ps-1" style=""> Contact</th>
-				<th class="text-center" style="">Address</th>
-				<th class="" style="">City</th>
-				<th class="px-2" style="">Country</th>
-				<th> Details</th>
+			
+				<th class="my-2 text-center">
+					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=company_name&order={% if current_sort == 'company_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
+						Customer 
+						{% if current_sort == 'company_name' %}
+							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+						{% else %}
+							<i class="fa fa-sort"></i>
+						{% endif %}
+					</a>
+				</th>
+				
+			
+				<th class="ps-1">
+					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=contact_name&order={% if current_sort == 'contact_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
+						Contact 
+						{% if current_sort == 'contact_name' %}
+							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+						{% else %}
+							<i class="fa fa-sort"></i>
+						{% endif %}
+					</a>
+				</th>
+				
+				
+				<th>
+					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=contact_title&order={% if current_sort == 'contact_title' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
+						Title 
+						{% if current_sort == 'contact_title' %}
+							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+						{% else %}
+							<i class="fa fa-sort"></i>
+						{% endif %}
+					</a>
+				</th>
+				
+				<th class="text-center">Address</th>
+				
+				
+				<th>
+					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=city&order={% if current_sort == 'city' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
+						City 
+						{% if current_sort == 'city' %}
+							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+						{% else %}
+							<i class="fa fa-sort"></i>
+						{% endif %}
+					</a>
+				</th>
+				
+				
+				<th>
+					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=region&order={% if current_sort == 'region' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
+						Region 
+						{% if current_sort == 'region' %}
+							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+						{% else %}
+							<i class="fa fa-sort"></i>
+						{% endif %}
+					</a>
+				</th>
+				
+				
+				<th class="px-2">
+					<a href="?{% if query_string %}{{ query_string }}&{% endif %}sort=country&order={% if current_sort == 'country' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark text-decoration-none">
+						Country 
+						{% if current_sort == 'country' %}
+							<i class="fa fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+						{% else %}
+							<i class="fa fa-sort"></i>
+						{% endif %}
+					</a>
+				</th>
+				
+				<th>Details</th>
 			</tr>
 		</thead>
 
@@ -91,8 +182,12 @@
 			<tr >
 				<td class="p-2">{{customer.company_name}}</td>
 				<td class="p-2">{{customer.contact_name}}</td>
+				<!--Added in column to show title in the table-->
+				<td class="p-2">{{customer.contact_title}}</td>
 				<td class="p-2">{{customer.address}}</td>
 				<td class="p-2">{{customer.city}}</td>
+				<!--Added in region-->
+				<td class="p-2">{{customer.region}}</td>
 				<td class="p-2">{{customer.country}}</td>
 
 				<td title="Click to see details" class="text-center">
@@ -103,7 +198,7 @@
 			</tr>
 			{% endfor %}
 		</tbody>
-	<table>	
+	</table>	
 	{% else %}
 		<div class="alert alert-warning">
 			{% if search_country %}
@@ -116,4 +211,33 @@
 	{% endif %}
 </div>
 
+<!--Initialize DataTables CDN through Index.html-->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#CustomersTable').DataTable({  
+    	order:[0,'asc'],
+    	responsive:true,
+    	paging:true,
+    	searching:false,
+    	ordering: false,  
+	});
+
+
+	// Auto-submit when user types in text inputs
+    $('input[type="text"]').on('input', function() {
+        // Add small delay to prevent too many requests
+        clearTimeout(window.searchTimeout);
+        window.searchTimeout = setTimeout(function() {
+            $('form').submit();
+        }, 500); // Wait 500ms after user stops typing
+    });
+    
+    // Auto-submit immediately when dropdown changes
+    $('select').on('change', function() {
+        $('form').submit();
+    });
+
+});
+	</script>
+	
 {% endblock%}
